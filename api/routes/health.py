@@ -1,6 +1,5 @@
 
-from flask import Blueprint, request
-import time
+from flask import Blueprint
 
 health = Blueprint('health', __name__)
 
