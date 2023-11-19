@@ -30,7 +30,7 @@ class Service(ABC):
             self.headers['Client-ID'] = client_id
 
     @abstractmethod
-    async def search(self, query: str) -> List[SearchResult]:
+    def search(self, query: str) -> List[SearchResult]:
         """
         Searches the API service using the provided query string. (Abstract method)
 

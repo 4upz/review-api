@@ -18,20 +18,21 @@ class TMDBService(Service):
             raise Exception('The TMDB_API_TOKEN was not found')
         super().__init__(base_url=self.BASE_URL, token=self.token)
 
-    async def search(self, query: str):
+    def search(self, query: str):
         endpoint = f'{self.baseURL}/search/movie'
         params = {'query': query}
 
         results = []
 
         try:
-            response = await requests.get(
+            response = requests.get(
                 endpoint, params=params, headers=self.headers)
-            if response.text.error:
-                raise Exception(response.text.error)
-            results = response.text.results
+            response_data = response.json()
+            if response.status_code != 200:
+                raise Exception(response_data['status_message'])
+            results = response_data['results']
         except Exception as e:
-            raise Exception('Error fetching data from TMDB: ', e)
+            raise Exception(f'Error fetching data from TMDB. {e.args[0]}')
 
         #  Return first five results
         return [
