@@ -1,6 +1,5 @@
 import requests
 from os import getenv
-from typing import Any, Coroutine, List
 from dotenv import load_dotenv
 from api.models import SearchResult
 from .service_base import Service
@@ -22,8 +21,6 @@ class TMDBService(Service):
         endpoint = f'{self.baseURL}/search/movie'
         params = {'query': query}
 
-        results = []
-
         try:
             response = requests.get(
                 endpoint, params=params, headers=self.headers)
@@ -40,11 +37,27 @@ class TMDBService(Service):
                 id=str(result['id']),
                 title=result['title'],
                 description=result['overview'],
-                image=f'https://www.themoviedb.org/t/p/w600_and_h900_bestv2{result["poster_path"]}',
-                date=result['release_date']
+                image_url=f'https://www.themoviedb.org/t/p/w600_and_h900_bestv2{result["poster_path"]}',
+                release_date=result['release_date']
             )
             for result in results[:5]
         ]
 
     def getById(self, id: str) -> SearchResult:
-        pass
+        endpoint = f'{self.baseURL}/movie/{id}'
+
+        try:
+            response = requests.get(endpoint, headers=self.headers)
+            result = response.json()
+            if response.status_code != 200:
+                raise Exception(response.json()['status_message'])
+        except Exception as e:
+            raise Exception(f'Error fetching data from TMDB. {e.args[0]}')
+
+        return SearchResult(
+            id=str(result['id']),
+            title=result['title'],
+            description=result['overview'],
+            image_url=f'https://www.themoviedb.org/t/p/w600_and_h900_bestv2{result["poster_path"]}',
+            release_date=result['release_date']
+        )
